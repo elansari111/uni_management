@@ -6,7 +6,46 @@
     <title>@hasSection('title') @yield('title') | @endif {{ config('app.name', 'PFM') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <style>
+        .dark body, .dark .app-container {
+            background: #1a1a2e;
+            color: #eee;
+        }
+        .dark .sidebar {
+            background: #16213e;
+        }
+        .dark .main-header-glass {
+            background: rgba(22,33,62,0.9);
+            border-bottom: 1px solid #2a3f5f;
+        }
+        .dark .bg-white {
+            background: #16213e !important;
+        }
+        .dark .border-slate-100 {
+            border-color: #2a3f5f !important;
+        }
+        .dark .text-slate-900 {
+            color: #eee !important;
+        }
+        .dark .text-slate-700 {
+            color: #ddd !important;
+        }
+        .dark .text-slate-500 {
+            color: #aaa !important;
+        }
+        .dark .text-indigo-600 {
+            color: #818cf8;
+        }
+        .dark .bg-slate-50 {
+            background: #0f172a;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -165,19 +204,31 @@
                 </div>
 
                 <div class="header-actions-glass">
-                    <!-- Search Bar -->
-                    <div class="search-container-glass">
-                        <span class="search-icon-glass">🔍</span>
-                        <input type="text" placeholder="Rechercher..." class="search-input-glass">
-                        <span class="search-shortcut">⌘ K</span>
-                    </div>
+            <!-- Language Switcher -->
+            <div class="flex items-center gap-2">
+                <a href="{{ route('locale.switch', 'fr') }}" class="text-sm hover:text-indigo-600 transition">🇫🇷</a>
+                <a href="{{ route('locale.switch', 'en') }}" class="text-sm hover:text-indigo-600 transition">🇬🇧</a>
+                <a href="{{ route('locale.switch', 'ar') }}" class="text-sm hover:text-indigo-600 transition">🇸🇦</a>
+            </div>
+            
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Toggle Theme">
+                <span id="theme-icon">🌙</span>
+            </button>
+            
+            <!-- Search Bar -->
+            <div class="search-container-glass">
+                <span class="search-icon-glass">🔍</span>
+                <input type="text" placeholder="Rechercher..." class="search-input-glass">
+                <span class="search-shortcut">⌘ K</span>
+            </div>
 
-                    <!-- Notification Button -->
-                    <button class="notify-btn-glass" title="Notifications">
-                        <span>🔔</span>
-                        <span class="notify-badge-glass"></span>
-                    </button>
-                </div>
+            <!-- Notification Button -->
+            <button class="notify-btn-glass" title="Notifications">
+                <span>🔔</span>
+                <span class="notify-badge-glass"></span>
+            </button>
+        </div>
             </div>
 
             @yield('content')
@@ -189,6 +240,25 @@
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
         };
+        
+        // Theme Toggle
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('theme-icon').textContent = '☀️';
+            } else {
+                localStorage.setItem('theme', 'light');
+                document.getElementById('theme-icon').textContent = '🌙';
+            }
+        });
+        
+        // Initialize theme icon
+        if (document.documentElement.classList.contains('dark')) {
+            document.getElementById('theme-icon').textContent = '☀️';
+        }
     </script>
+    @stack('scripts')
 </body>
 </html>

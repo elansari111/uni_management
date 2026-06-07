@@ -15,7 +15,7 @@
                 <span class="text-2xl font-bold">👥</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Utilisateurs Globaux</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Global Users') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['users'] }}</h3>
             </div>
         </div>
@@ -25,7 +25,7 @@
                 <span class="text-2xl font-bold">👨‍🎓</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Étudiants inscrits</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Enrolled Students') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['students'] }}</h3>
             </div>
         </div>
@@ -35,7 +35,7 @@
                 <span class="text-2xl font-bold">👨‍🏫</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Enseignants actifs</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Active Teachers') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['teachers'] }}</h3>
             </div>
         </div>
@@ -45,7 +45,7 @@
                 <span class="text-2xl font-bold">📖</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Modules programmés</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Programmed Modules') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['modules'] }}</h3>
             </div>
         </div>
@@ -55,7 +55,7 @@
                 <span class="text-2xl font-bold">🏫</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Salles de classe</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Classrooms') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $stats['classrooms'] }}</h3>
             </div>
         </div>
@@ -65,7 +65,7 @@
                 <span class="text-2xl font-bold">🔔</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Demandes en attente</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Pending Requests') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">
                     {{ $stats['pending_reservations'] + $stats['pending_requests'] + $stats['pending_absences'] }}
                 </h3>
@@ -73,24 +73,112 @@
         </div>
 
     </div>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Students per Group Chart -->
+        <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+            <h4 class="text-lg font-semibold text-slate-900 mb-6">{{ __('Students per Group') }}</h4>
+            <div style="height: 300px;">
+                <canvas id="studentsPerGroupChart"></canvas>
+            </div>
+        </div>
 
-    <!-- Quick Links -->
-    <div class="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm">
-        <h4 class="text-lg font-semibold text-slate-900 mb-6">Actions Administratives Rapides</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{{ route('admin.users.create') }}" class="p-4 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 rounded-2xl text-center border border-slate-100 transition-all font-medium">
-                Créer un Utilisateur
-            </a>
-            <a href="{{ route('admin.schedules.create') }}" class="p-4 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 rounded-2xl text-center border border-slate-100 transition-all font-medium">
-                Planifier un Cours
-            </a>
-            <a href="{{ route('admin.requests.index') }}" class="p-4 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 rounded-2xl text-center border border-slate-100 transition-all font-medium text-slate-700">
-                Gérer les Attestations
-            </a>
-            <a href="{{ route('admin.reservations.index') }}" class="p-4 bg-slate-50 hover:bg-indigo-50 hover:text-indigo-600 rounded-2xl text-center border border-slate-100 transition-all font-medium text-slate-700">
-                Réservations de Salles
-            </a>
+        <!-- Grade Distribution Chart -->
+        <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
+            <h4 class="text-lg font-semibold text-slate-900 mb-6">{{ __('Grade Distribution') }}</h4>
+            <div style="height: 300px;">
+                <canvas id="gradeChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing charts');
+    console.log('Chart available:', typeof window.Chart);
+    
+    // Students per Group Chart
+    const studentsPerGroupCtx = document.getElementById('studentsPerGroupChart');
+    if (studentsPerGroupCtx && window.Chart) {
+        new Chart(studentsPerGroupCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: @json($groupNames),
+                datasets: [{
+                    label: 'Nombre d\'étudiants',
+                    data: @json($groupStudentCounts),
+                    backgroundColor: [
+                        '#3b82f6', // Blue
+                        '#10b981', // Green
+                        '#f59e0b', // Amber
+                        '#8b5cf6', // Purple
+                        '#ec4899', // Pink
+                        '#06b6d4', // Cyan
+                        '#84cc16'  // Lime
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Grade Distribution Chart
+    const gradeCtx = document.getElementById('gradeChart');
+    if (gradeCtx && window.Chart) {
+        new Chart(gradeCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['0-5', '6-10', '11-15', '16-20'],
+                datasets: [{
+                    label: 'Nombre d\'étudiants',
+                    data: [
+                        {{ $gradeRanges['0-5'] }},
+                        {{ $gradeRanges['6-10'] }},
+                        {{ $gradeRanges['11-15'] }},
+                        {{ $gradeRanges['16-20'] }}
+                    ],
+                    backgroundColor: [
+                        '#ef4444',
+                        '#f59e0b',
+                        '#10b981',
+                        '#3b82f6'
+                    ],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush
 @endsection

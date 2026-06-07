@@ -5,43 +5,57 @@
 
 @section('content')
 <div class="space-y-6">
-    @foreach($days as $key => $label)
-        <div class="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                <h4 class="text-base font-bold text-slate-900">{{ $label }}</h4>
-                <span class="text-xs text-slate-500">
-                    {{ ($schedulesByDay[$key] ?? collect())->count() }} séance(s)
-                </span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase border-b border-slate-100">
-                            <th class="px-6 py-4">Horaire</th>
-                            <th class="px-6 py-4">Module</th>
-                            <th class="px-6 py-4">Groupe</th>
-                            <th class="px-6 py-4">Salle</th>
-                            <th class="px-6 py-4">Type</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
-                        @forelse(($schedulesByDay[$key] ?? collect()) as $item)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-4 font-semibold text-slate-900">{{ $item->start_time }} - {{ $item->end_time }}</td>
-                                <td class="px-6 py-4">{{ $item->module?->name }}</td>
-                                <td class="px-6 py-4">{{ $item->module?->group?->name ?? '-' }}</td>
-                                <td class="px-6 py-4">{{ $item->classroom?->name ?? '-' }}</td>
-                                <td class="px-6 py-4 capitalize">{{ $item->type }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-400">Aucune séance programmée.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    @endforeach
+    <!-- FullCalendar Container -->
+    <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+        <div id="calendar"></div>
+    </div>
 </div>
+
+<!-- FullCalendar Styles -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    
+    // Prepare events
+    const events = [
+        @foreach($schedulesByDay as $day => $daySchedules)
+            @foreach($daySchedules as $item)
+                {
+                    title: '{{ $item->module?->name }} - {{ $item->classroom?->name ?? "Salle non assignée" }}',
+                    daysOfWeek: [{{ array_search($day, ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']); }}],
+                    startTime: '{{ $item->start_time }}',
+                    endTime: '{{ $item->end_time }}',
+                    color: getRandomColor()
+                },
+            @endforeach
+        @endforeach
+    ];
+    
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        locale: 'fr',
+        firstDay: 1, // Start week on Monday
+        slotMinTime: '08:00:00',
+        slotMaxTime: '19:00:00',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: events
+    });
+    
+    calendar.render();
+    
+    function getRandomColor() {
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+});
+</script>
+@endpush
 @endsection

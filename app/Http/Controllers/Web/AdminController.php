@@ -13,6 +13,8 @@ use App\Models\Schedule;
 use App\Models\RoomReservation;
 use App\Models\AdministrativeRequest;
 use App\Models\AbsenceJustification;
+use App\Models\Absence;
+use App\Models\Grade;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\LessonLog;
@@ -48,7 +50,20 @@ class AdminController extends Controller
             'pending_absences' => AbsenceJustification::where('status', 'pending')->count(),
         ];
 
-        return view('admin.dashboard', compact('stats'));
+        // Grade distribution
+        $gradeRanges = [
+            '0-5' => Grade::whereBetween('final_grade', [0, 5])->count(),
+            '6-10' => Grade::whereBetween('final_grade', [6, 10])->count(),
+            '11-15' => Grade::whereBetween('final_grade', [11, 15])->count(),
+            '16-20' => Grade::whereBetween('final_grade', [16, 20])->count(),
+        ];
+
+        // Students per Group data
+        $groups = Group::withCount('students')->get();
+        $groupNames = $groups->pluck('name');
+        $groupStudentCounts = $groups->pluck('students_count');
+
+        return view('admin.dashboard', compact('stats', 'gradeRanges', 'groupNames', 'groupStudentCounts'));
     }
 
     /**

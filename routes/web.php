@@ -11,6 +11,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/locale/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'fr', 'ar'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('locale.switch');
+
 // Redirect authenticated users based on role
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
