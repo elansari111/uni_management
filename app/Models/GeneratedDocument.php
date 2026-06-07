@@ -12,6 +12,7 @@ class GeneratedDocument extends Model
     protected $fillable = [
         'request_id',
         'student_id',
+        'teacher_id',
         'type',
         'title',
         'file_path',
@@ -35,6 +36,11 @@ class GeneratedDocument extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
     }
 
     public function generator()

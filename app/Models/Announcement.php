@@ -13,6 +13,7 @@ class Announcement extends Model
     protected $fillable = [
         'title',
         'content',
+        'module_id',
         'target_role',
         'created_by',
         'published_at',
@@ -30,6 +31,11 @@ class Announcement extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function module()
+    {
+        return $this->belongsTo(Module::class);
     }
 
     public function comments()

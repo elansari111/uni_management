@@ -27,6 +27,7 @@ class AnnouncementFactory extends Factory
         return [
             'title' => fake()->sentence(),
             'content' => fake()->paragraph(3),
+            'module_id' => \App\Models\Module::inRandomOrder()->first()?->id ?? \App\Models\Module::factory(),
             'target_role' => fake()->randomElement(['all', 'admin', 'teacher', 'student']),
             'created_by' => $user->id,
             'published_at' => fake()->dateTime(),

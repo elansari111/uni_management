@@ -46,12 +46,35 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/modules/{id}/edit', [AdminController::class, 'modulesEdit'])->name('modules.edit');
     Route::put('/modules/{id}', [AdminController::class, 'modulesUpdate'])->name('modules.update');
     Route::delete('/modules/{id}', [AdminController::class, 'modulesDestroy'])->name('modules.destroy');
+
+    Route::get('/levels', [AdminController::class, 'levelsIndex'])->name('levels.index');
+    Route::get('/levels/create', [AdminController::class, 'levelsCreate'])->name('levels.create');
+    Route::post('/levels', [AdminController::class, 'levelsStore'])->name('levels.store');
+    Route::get('/levels/{id}/edit', [AdminController::class, 'levelsEdit'])->name('levels.edit');
+    Route::put('/levels/{id}', [AdminController::class, 'levelsUpdate'])->name('levels.update');
+    Route::delete('/levels/{id}', [AdminController::class, 'levelsDestroy'])->name('levels.destroy');
+
+    Route::get('/groups', [AdminController::class, 'groupsIndex'])->name('groups.index');
+    Route::get('/groups/create', [AdminController::class, 'groupsCreate'])->name('groups.create');
+    Route::post('/groups', [AdminController::class, 'groupsStore'])->name('groups.store');
+    Route::get('/groups/{id}/edit', [AdminController::class, 'groupsEdit'])->name('groups.edit');
+    Route::put('/groups/{id}', [AdminController::class, 'groupsUpdate'])->name('groups.update');
+    Route::delete('/groups/{id}', [AdminController::class, 'groupsDestroy'])->name('groups.destroy');
+
+    Route::get('/classrooms', [AdminController::class, 'classroomsIndex'])->name('classrooms.index');
+    Route::get('/classrooms/create', [AdminController::class, 'classroomsCreate'])->name('classrooms.create');
+    Route::post('/classrooms', [AdminController::class, 'classroomsStore'])->name('classrooms.store');
+    Route::get('/classrooms/{id}/edit', [AdminController::class, 'classroomsEdit'])->name('classrooms.edit');
+    Route::put('/classrooms/{id}', [AdminController::class, 'classroomsUpdate'])->name('classrooms.update');
+    Route::delete('/classrooms/{id}', [AdminController::class, 'classroomsDestroy'])->name('classrooms.destroy');
     
     // Schedules
     Route::get('/schedules', [AdminController::class, 'schedulesIndex'])->name('schedules.index');
     Route::get('/schedules/create', [AdminController::class, 'schedulesCreate'])->name('schedules.create');
     Route::post('/schedules', [AdminController::class, 'schedulesStore'])->name('schedules.store');
     Route::delete('/schedules/{id}', [AdminController::class, 'schedulesDestroy'])->name('schedules.destroy');
+
+    Route::get('/lesson-logs', [AdminController::class, 'lessonLogsIndex'])->name('lesson-logs.index');
     
     // Room Reservations
     Route::get('/requests/reservations', [AdminController::class, 'roomReservations'])->name('requests.reservations');
@@ -78,6 +101,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
     Route::get('/modules', [TeacherController::class, 'modules'])->name('modules');
+    Route::get('/schedule', [TeacherController::class, 'schedule'])->name('schedule');
+    Route::get('/modules/{id}/classroom', [TeacherController::class, 'classroom'])->name('classroom.show');
+    Route::post('/modules/{id}/announcements', [TeacherController::class, 'storeAnnouncement'])->name('classroom.announcements.store');
+    Route::post('/modules/{id}/materials', [TeacherController::class, 'storeCourseMaterial'])->name('classroom.materials.store');
+    Route::post('/announcements/{id}/comments', [TeacherController::class, 'storeAnnouncementComment'])->name('announcements.comments.store');
     Route::get('/grades', [TeacherController::class, 'gradesIndex'])->name('grades.index');
     Route::post('/grades', [TeacherController::class, 'storeGrade'])->name('grades.store');
     Route::get('/attendance', [TeacherController::class, 'attendanceIndex'])->name('attendance.index');
@@ -86,13 +114,19 @@ Route::middleware(['auth', 'role:teacher'])->prefix('teacher')->name('teacher.')
     Route::post('/lesson-logs', [TeacherController::class, 'storeLessonLog'])->name('lesson-logs.store');
     Route::get('/reservations', [TeacherController::class, 'roomReservationsIndex'])->name('reservations.index');
     Route::post('/reservations', [TeacherController::class, 'storeRoomReservation'])->name('reservations.store');
+    Route::get('/requests', [TeacherController::class, 'requestsIndex'])->name('requests.index');
+    Route::post('/requests', [TeacherController::class, 'submitRequest'])->name('requests.store');
 });
 
 // Student Routes
 Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('dashboard');
+    Route::get('/modules', [StudentController::class, 'modules'])->name('modules.index');
+    Route::get('/modules/{id}/classroom', [StudentController::class, 'classroom'])->name('classroom.show');
+    Route::post('/announcements/{id}/comments', [StudentController::class, 'storeAnnouncementComment'])->name('announcements.comments.store');
     Route::get('/grades', [StudentController::class, 'grades'])->name('grades');
     Route::get('/grades/index', [StudentController::class, 'grades'])->name('grades.index');
+    Route::get('/schedule', [StudentController::class, 'schedule'])->name('schedule');
     Route::get('/absences', [StudentController::class, 'absences'])->name('absences');
     Route::post('/absences/justification', [StudentController::class, 'submitJustification'])->name('absences.justification');
     Route::post('/absences/justify', [StudentController::class, 'submitJustification'])->name('absences.justify');

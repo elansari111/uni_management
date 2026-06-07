@@ -35,9 +35,25 @@
                             <span class="icon">📚</span>
                             <span>Modules</span>
                         </a>
+                        <a href="{{ route('admin.groups.index') }}" class="sidebar-link {{ request()->routeIs('admin.groups.*') ? 'active' : '' }}">
+                            <span class="icon">🧩</span>
+                            <span>Groupes</span>
+                        </a>
+                        <a href="{{ route('admin.levels.index') }}" class="sidebar-link {{ request()->routeIs('admin.levels.*') ? 'active' : '' }}">
+                            <span class="icon">🎓</span>
+                            <span>Niveaux</span>
+                        </a>
+                        <a href="{{ route('admin.classrooms.index') }}" class="sidebar-link {{ request()->routeIs('admin.classrooms.*') ? 'active' : '' }}">
+                            <span class="icon">🏫</span>
+                            <span>Salles</span>
+                        </a>
                         <a href="{{ route('admin.schedules.index') }}" class="sidebar-link {{ request()->routeIs('admin.schedules.*') ? 'active' : '' }}">
                             <span class="icon">📅</span>
                             <span>Emplois du temps</span>
+                        </a>
+                        <a href="{{ route('admin.lesson-logs.index') }}" class="sidebar-link {{ request()->routeIs('admin.lesson-logs.*') ? 'active' : '' }}">
+                            <span class="icon">📖</span>
+                            <span>Cahier de textes</span>
                         </a>
                         <a href="{{ route('admin.reservations') }}" class="sidebar-link {{ request()->routeIs('admin.reservations') || request()->routeIs('admin.requests.reservations') ? 'active' : '' }}">
                             <span class="icon">📋</span>
@@ -55,6 +71,10 @@
                         <a href="{{ route('teacher.dashboard') }}" class="sidebar-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}">
                             <span class="icon">🏠</span>
                             <span>Tableau de bord</span>
+                        </a>
+                        <a href="{{ route('teacher.schedule') }}" class="sidebar-link {{ request()->routeIs('teacher.schedule') ? 'active' : '' }}">
+                            <span class="icon">📅</span>
+                            <span>Mon EDT</span>
                         </a>
                         <a href="{{ route('teacher.modules') }}" class="sidebar-link {{ request()->routeIs('teacher.modules') ? 'active' : '' }}">
                             <span class="icon">📚</span>
@@ -76,10 +96,22 @@
                             <span class="icon">📋</span>
                             <span>Réservations</span>
                         </a>
+                        <a href="{{ route('teacher.requests.index') }}" class="sidebar-link {{ request()->routeIs('teacher.requests.*') ? 'active' : '' }}">
+                            <span class="icon">📝</span>
+                            <span>Demandes</span>
+                        </a>
                     @elseif(Auth::user()->hasRole('student'))
                         <a href="{{ route('student.dashboard') }}" class="sidebar-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
                             <span class="icon">🏠</span>
                             <span>Tableau de bord</span>
+                        </a>
+                        <a href="{{ route('student.modules.index') }}" class="sidebar-link {{ request()->routeIs('student.modules.*') || request()->routeIs('student.classroom.*') ? 'active' : '' }}">
+                            <span class="icon">📚</span>
+                            <span>Modules</span>
+                        </a>
+                        <a href="{{ route('student.schedule') }}" class="sidebar-link {{ request()->routeIs('student.schedule') ? 'active' : '' }}">
+                            <span class="icon">📅</span>
+                            <span>Mon EDT</span>
                         </a>
                         <a href="{{ route('student.grades') }}" class="sidebar-link {{ request()->routeIs('student.grades') || request()->routeIs('student.grades.index') ? 'active' : '' }}">
                             <span class="icon">📊</span>

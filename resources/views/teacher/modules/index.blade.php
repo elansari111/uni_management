@@ -32,12 +32,15 @@
                 @endif
             </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-100 flex space-x-2">
-                <a href="{{ route('teacher.grades.index', ['module_id' => $module->id]) }}" class="flex-1 text-center py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition-colors">
-                    Saisir Notes
+            <div class="mt-6 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2">
+                <a href="{{ route('teacher.grades.index', ['module_id' => $module->id]) }}" class="text-center py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition-colors">
+                    Notes
                 </a>
-                <a href="{{ route('teacher.attendance.index', ['module_id' => $module->id]) }}" class="flex-1 text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors">
+                <a href="{{ route('teacher.attendance.index', ['module_id' => $module->id]) }}" class="text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors">
                     Présences
+                </a>
+                <a href="{{ route('teacher.classroom.show', $module->id) }}" class="text-center py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition-colors">
+                    Classroom
                 </a>
             </div>
         </div>

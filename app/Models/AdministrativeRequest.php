@@ -16,6 +16,10 @@ class AdministrativeRequest extends Model
         'type',
         'title',
         'description',
+        'destination',
+        'start_date',
+        'end_date',
+        'purpose',
         'status',
         'submitted_at',
         'processed_by',
@@ -26,6 +30,8 @@ class AdministrativeRequest extends Model
     protected $casts = [
         'submitted_at' => 'datetime',
         'processed_at' => 'datetime',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function student()

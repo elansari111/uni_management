@@ -9,9 +9,12 @@ use App\Models\AbsenceJustification;
 use App\Models\AdministrativeRequest;
 use App\Models\GeneratedDocument;
 use App\Models\Announcement;
+use App\Models\Comment;
 use App\Models\CourseMaterial;
 use App\Models\Schedule;
+use App\Models\Module;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
@@ -20,7 +23,7 @@ class StudentController extends Controller
      */
     protected function getStudent()
     {
-        $student = auth()->user()->student;
+        $student = Auth::user()->student;
         if (!$student) {
             abort(403, 'Student profile not found.');
         }
@@ -61,6 +64,105 @@ class StudentController extends Controller
         $student = $this->getStudent();
         $grades = Grade::where('student_id', $student->id)->with('module.teacher')->get();
         return view('student.grades.index', compact('grades'));
+    }
+
+    public function schedule()
+    {
+        $student = $this->getStudent();
+        $groupId = $student->group_id;
+
+        $days = [
+            'monday' => 'Lundi',
+            'tuesday' => 'Mardi',
+            'wednesday' => 'Mercredi',
+            'thursday' => 'Jeudi',
+            'friday' => 'Vendredi',
+            'saturday' => 'Samedi',
+        ];
+
+        if (!$groupId) {
+            $schedulesByDay = collect();
+            return view('student.schedule.index', compact('days', 'schedulesByDay'));
+        }
+
+        $schedules = Schedule::with(['module.teacher', 'classroom'])
+            ->whereHas('module', function ($q) use ($groupId) {
+                $q->where('group_id', $groupId);
+            })
+            ->orderByRaw("FIELD(day_of_week,'monday','tuesday','wednesday','thursday','friday','saturday')")
+            ->orderBy('start_time')
+            ->get();
+
+        $schedulesByDay = $schedules->groupBy('day_of_week');
+
+        return view('student.schedule.index', compact('days', 'schedulesByDay'));
+    }
+
+    public function modules()
+    {
+        $student = $this->getStudent();
+
+        if (!$student->group_id) {
+            $modules = collect();
+            return view('student.modules.index', compact('modules'));
+        }
+
+        $modules = Module::where('group_id', $student->group_id)
+            ->with('teacher')
+            ->orderBy('name')
+            ->get();
+
+        return view('student.modules.index', compact('modules'));
+    }
+
+    public function classroom(int $moduleId)
+    {
+        $student = $this->getStudent();
+        $module = Module::with(['teacher', 'group'])->findOrFail($moduleId);
+
+        if ($student->group_id !== $module->group_id) {
+            abort(403);
+        }
+
+        $announcements = Announcement::where('module_id', $module->id)
+            ->where('status', 'published')
+            ->with(['creator', 'comments.user'])
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('published_at')
+            ->get();
+
+        $materials = CourseMaterial::where('module_id', $module->id)
+            ->where('status', 'published')
+            ->with('uploader')
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('student.classroom.show', compact('module', 'announcements', 'materials'));
+    }
+
+    public function storeAnnouncementComment(Request $request, int $announcementId)
+    {
+        $student = $this->getStudent();
+        $announcement = Announcement::with('module')->findOrFail($announcementId);
+
+        if (!$announcement->module || $announcement->module->group_id !== $student->group_id) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'content' => 'required|string|min:1|max:2000',
+        ]);
+
+        Comment::create([
+            'user_id' => Auth::id(),
+            'content' => $data['content'],
+            'commentable_type' => Announcement::class,
+            'commentable_id' => $announcement->id,
+            'status' => 'approved',
+        ]);
+
+        return back()->with('success', 'Commentaire ajouté.');
     }
 
     /**

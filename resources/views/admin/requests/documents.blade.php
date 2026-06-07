@@ -10,7 +10,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase border-b border-slate-100">
-                        <th class="px-6 py-4">Étudiant</th>
+                        <th class="px-6 py-4">Demandeur</th>
                         <th class="px-6 py-4">Type de Document</th>
                         <th class="px-6 py-4">Motif de la Demande</th>
                         <th class="px-6 py-4">Date de Demande</th>
@@ -21,9 +21,19 @@
                 <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
                     @forelse($requests as $req)
                         <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="px-6 py-4 font-semibold text-slate-900">{{ $req->student?->user?->name }}</td>
-                            <td class="px-6 py-4 font-medium uppercase text-indigo-600">{{ $req->type }}</td>
-                            <td class="px-6 py-4 max-w-[200px] truncate" title="{{ $req->description }}">{{ $req->description }}</td>
+                            <td class="px-6 py-4 font-semibold text-slate-900">
+                                @if($req->student)
+                                    {{ $req->student->user?->name }}
+                                    <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">Étudiant</span>
+                                @elseif($req->teacher)
+                                    {{ $req->teacher->user?->name }}
+                                    <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-100 text-violet-800">Professeur</span>
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 font-medium uppercase text-indigo-600">{{ str_replace('_', ' ', $req->type) }}</td>
+                            <td class="px-6 py-4 max-w-[220px] truncate" title="{{ $req->purpose ?? $req->description }}">{{ $req->purpose ?? $req->description }}</td>
                             <td class="px-6 py-4">{{ $req->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-6 py-4">
                                 <span class="px-2.5 py-1 text-xs font-semibold rounded-full capitalize

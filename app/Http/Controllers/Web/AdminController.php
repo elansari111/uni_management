@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Group;
+use App\Models\Level;
 use App\Models\Module;
 use App\Models\Classroom;
 use App\Models\Schedule;
@@ -14,8 +15,10 @@ use App\Models\AdministrativeRequest;
 use App\Models\AbsenceJustification;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\LessonLog;
 use App\Services\ScheduleConflictService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -245,7 +248,7 @@ class AdminController extends Controller
 
         $reservation->update([
             'status' => 'approved',
-            'approved_by' => auth()->id(),
+            'approved_by' => Auth::id(),
         ]);
 
         return back()->with('success', 'Room reservation approved successfully.');
@@ -262,7 +265,7 @@ class AdminController extends Controller
 
         $reservation->update([
             'status' => 'rejected',
-            'approved_by' => auth()->id(),
+            'approved_by' => Auth::id(),
             'rejection_reason' => $request->rejection_reason,
         ]);
 
@@ -274,7 +277,7 @@ class AdminController extends Controller
      */
     public function administrativeRequests()
     {
-        $requests = AdministrativeRequest::with(['student.user'])->orderBy('created_at', 'desc')->paginate(15);
+        $requests = AdministrativeRequest::with(['student.user', 'teacher.user'])->orderBy('created_at', 'desc')->paginate(15);
         return view('admin.requests.documents', compact('requests'));
     }
 
@@ -287,51 +290,45 @@ class AdminController extends Controller
         ]);
 
         if ($request->status === 'approved') {
-            // Generates PDF or marks as validated
             $adminRequest->update([
                 'status' => 'approved',
                 'processed_at' => now(),
+                'processed_by' => Auth::id(),
+                'admin_notes' => null,
             ]);
 
-            // Try to generate documents if student is linked
             try {
-                $student = $adminRequest->student;
-                if ($student) {
-                    $pdfService = app(\App\Services\PdfService::class);
-                    $documentType = $adminRequest->type; // e.g., 'certificate', 'transcript'
-                    $pdfPath = null;
-                    if ($documentType === 'certificate') {
-                        $pdfPath = $pdfService->generateCertificate($student);
-                    } elseif ($documentType === 'transcript') {
-                        $pdfPath = $pdfService->generateTranscript($student);
-                    } elseif ($documentType === 'attestation') {
-                        $pdfPath = $pdfService->generateAttestation($student);
-                    }
+                $pdfService = app(\App\Services\PdfService::class);
+                $pdfPath = $pdfService->generateDocument($adminRequest);
 
-                    if ($pdfPath) {
-                        \App\Models\GeneratedDocument::create([
-                            'student_id' => $student->id,
-                            'request_id' => $adminRequest->id,
-                            'type' => $documentType,
-                            'title' => ucfirst($documentType) . ' for ' . $student->user->name,
-                            'file_path' => $pdfPath,
-                            'file_type' => 'pdf',
-                            'generated_by' => auth()->id(),
-                            'generated_at' => now(),
-                            'is_official' => true,
-                        ]);
-                    }
+                if ($pdfPath) {
+                    $student = $adminRequest->student;
+                    $teacher = $adminRequest->teacher;
+                    $ownerName = $student?->user?->name ?? $teacher?->user?->name ?? 'Utilisateur';
+
+                    \App\Models\GeneratedDocument::create([
+                        'student_id' => $student?->id,
+                        'teacher_id' => $teacher?->id,
+                        'request_id' => $adminRequest->id,
+                        'type' => $adminRequest->type,
+                        'title' => ucfirst(str_replace('_', ' ', $adminRequest->type)) . ' - ' . $ownerName,
+                        'file_path' => $pdfPath,
+                        'file_type' => 'pdf',
+                        'generated_by' => Auth::id(),
+                        'generated_at' => now(),
+                        'is_official' => true,
+                    ]);
                 }
             } catch (\Exception) {
-                // Keep the status as approved even if PDF generation failed due to setup
             }
 
             return back()->with('success', 'Request approved successfully.');
         } else {
             $adminRequest->update([
                 'status' => 'rejected',
-                'rejection_reason' => $request->rejection_reason,
                 'processed_at' => now(),
+                'processed_by' => Auth::id(),
+                'admin_notes' => $request->rejection_reason,
             ]);
 
             return back()->with('success', 'Request rejected successfully.');
@@ -358,7 +355,7 @@ class AdminController extends Controller
         $justification->update([
             'status'       => $request->status,
             'review_notes' => $request->status === 'rejected' ? $request->rejection_reason : null,
-            'reviewed_by'  => auth()->id(),
+            'reviewed_by'  => Auth::id(),
             'reviewed_at'  => now(),
         ]);
 
@@ -420,6 +417,41 @@ class AdminController extends Controller
         $schedule->delete();
 
         return redirect()->route('admin.schedules.index')->with('success', 'Schedule entry removed.');
+    }
+
+    public function schedulesEdit(int $id)
+    {
+        $schedule = Schedule::with(['module', 'classroom'])->findOrFail($id);
+        $modules = Module::with(['teacher', 'group'])->get();
+        $classrooms = Classroom::where('status', 'available')->get();
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+        return view('admin.schedules.edit', compact('schedule', 'modules', 'classrooms', 'days'));
+    }
+
+    public function schedulesUpdate(Request $request, int $id)
+    {
+        $schedule = Schedule::findOrFail($id);
+
+        $data = $request->validate([
+            'module_id' => 'required|exists:modules,id',
+            'classroom_id' => 'required|exists:classrooms,id',
+            'day_of_week' => 'required|in:monday,tuesday,wednesday,thursday,friday,saturday',
+            'start_time' => 'required',
+            'end_time' => 'required|after:start_time',
+            'type' => 'required|in:lecture,tutorial,practical,exam',
+        ]);
+
+        $conflicts = $this->conflictService->checkConflicts($data, $schedule->id);
+
+        if (!empty($conflicts)) {
+            $messages = collect($conflicts)->pluck('message')->join('; ');
+            return back()->withErrors(['conflict' => 'Schedule conflict detected: ' . $messages])->withInput();
+        }
+
+        $schedule->update($data);
+
+        return redirect()->route('admin.schedules.index')->with('success', 'Schedule entry updated successfully.');
     }
 
     /**
@@ -500,5 +532,210 @@ class AdminController extends Controller
         $module->delete();
 
         return redirect()->route('admin.modules.index')->with('success', 'Module deleted successfully.');
+    }
+
+    public function levelsIndex()
+    {
+        $levels = Level::orderBy('order')->orderBy('name')->paginate(15);
+        return view('admin.levels.index', compact('levels'));
+    }
+
+    public function levelsCreate()
+    {
+        return view('admin.levels.create');
+    }
+
+    public function levelsStore(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:levels,name',
+            'code' => 'required|string|max:50|unique:levels,code',
+            'description' => 'nullable|string',
+            'order' => 'nullable|integer|min:0',
+        ]);
+
+        $data['order'] = $data['order'] ?? 0;
+
+        Level::create($data);
+
+        return redirect()->route('admin.levels.index')->with('success', 'Niveau créé avec succès.');
+    }
+
+    public function levelsEdit(int $id)
+    {
+        $level = Level::findOrFail($id);
+        return view('admin.levels.edit', compact('level'));
+    }
+
+    public function levelsUpdate(Request $request, int $id)
+    {
+        $level = Level::findOrFail($id);
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:levels,name,' . $level->id,
+            'code' => 'required|string|max:50|unique:levels,code,' . $level->id,
+            'description' => 'nullable|string',
+            'order' => 'nullable|integer|min:0',
+        ]);
+
+        $data['order'] = $data['order'] ?? 0;
+
+        $level->update($data);
+
+        return redirect()->route('admin.levels.index')->with('success', 'Niveau mis à jour avec succès.');
+    }
+
+    public function levelsDestroy(int $id)
+    {
+        $level = Level::findOrFail($id);
+        $level->delete();
+
+        return redirect()->route('admin.levels.index')->with('success', 'Niveau supprimé avec succès.');
+    }
+
+    public function groupsIndex()
+    {
+        $groups = Group::with('level')->orderBy('created_at', 'desc')->paginate(15);
+        return view('admin.groups.index', compact('groups'));
+    }
+
+    public function groupsCreate()
+    {
+        $levels = Level::orderBy('order')->orderBy('name')->get();
+        return view('admin.groups.create', compact('levels'));
+    }
+
+    public function groupsStore(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:groups,name',
+            'code' => 'required|string|max:50|unique:groups,code',
+            'description' => 'nullable|string',
+            'capacity' => 'nullable|integer|min:1',
+            'level_id' => 'nullable|exists:levels,id',
+        ]);
+
+        $data['capacity'] = $data['capacity'] ?? 30;
+
+        Group::create($data);
+
+        return redirect()->route('admin.groups.index')->with('success', 'Groupe créé avec succès.');
+    }
+
+    public function groupsEdit(int $id)
+    {
+        $group = Group::findOrFail($id);
+        $levels = Level::orderBy('order')->orderBy('name')->get();
+        return view('admin.groups.edit', compact('group', 'levels'));
+    }
+
+    public function groupsUpdate(Request $request, int $id)
+    {
+        $group = Group::findOrFail($id);
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:groups,name,' . $group->id,
+            'code' => 'required|string|max:50|unique:groups,code,' . $group->id,
+            'description' => 'nullable|string',
+            'capacity' => 'nullable|integer|min:1',
+            'level_id' => 'nullable|exists:levels,id',
+        ]);
+
+        $data['capacity'] = $data['capacity'] ?? 30;
+
+        $group->update($data);
+
+        return redirect()->route('admin.groups.index')->with('success', 'Groupe mis à jour avec succès.');
+    }
+
+    public function groupsDestroy(int $id)
+    {
+        $group = Group::findOrFail($id);
+        $group->delete();
+
+        return redirect()->route('admin.groups.index')->with('success', 'Groupe supprimé avec succès.');
+    }
+
+    public function classroomsIndex()
+    {
+        $classrooms = Classroom::orderBy('created_at', 'desc')->paginate(15);
+        return view('admin.classrooms.index', compact('classrooms'));
+    }
+
+    public function classroomsCreate()
+    {
+        $statuses = ['available', 'maintenance', 'unavailable'];
+        return view('admin.classrooms.create', compact('statuses'));
+    }
+
+    public function classroomsStore(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:classrooms,code',
+            'capacity' => 'nullable|integer|min:1',
+            'building' => 'nullable|string|max:255',
+            'floor' => 'nullable|string|max:255',
+            'equipment' => 'nullable|string',
+            'status' => 'required|in:available,maintenance,unavailable',
+        ]);
+
+        $data['capacity'] = $data['capacity'] ?? 30;
+        $data['equipment'] = $request->filled('equipment')
+            ? array_values(array_filter(array_map('trim', explode(',', $request->equipment))))
+            : null;
+
+        Classroom::create($data);
+
+        return redirect()->route('admin.classrooms.index')->with('success', 'Salle créée avec succès.');
+    }
+
+    public function classroomsEdit(int $id)
+    {
+        $classroom = Classroom::findOrFail($id);
+        $statuses = ['available', 'maintenance', 'unavailable'];
+        return view('admin.classrooms.edit', compact('classroom', 'statuses'));
+    }
+
+    public function classroomsUpdate(Request $request, int $id)
+    {
+        $classroom = Classroom::findOrFail($id);
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:50|unique:classrooms,code,' . $classroom->id,
+            'capacity' => 'nullable|integer|min:1',
+            'building' => 'nullable|string|max:255',
+            'floor' => 'nullable|string|max:255',
+            'equipment' => 'nullable|string',
+            'status' => 'required|in:available,maintenance,unavailable',
+        ]);
+
+        $data['capacity'] = $data['capacity'] ?? 30;
+        $data['equipment'] = $request->filled('equipment')
+            ? array_values(array_filter(array_map('trim', explode(',', $request->equipment))))
+            : null;
+
+        $classroom->update($data);
+
+        return redirect()->route('admin.classrooms.index')->with('success', 'Salle mise à jour avec succès.');
+    }
+
+    public function classroomsDestroy(int $id)
+    {
+        $classroom = Classroom::findOrFail($id);
+        $classroom->delete();
+
+        return redirect()->route('admin.classrooms.index')->with('success', 'Salle supprimée avec succès.');
+    }
+
+    public function lessonLogsIndex()
+    {
+        $logs = LessonLog::with(['teacher.user', 'module', 'classroom'])
+            ->orderByDesc('date')
+            ->orderByDesc('start_time')
+            ->paginate(15);
+
+        return view('admin.lesson-logs.index', compact('logs'));
     }
 }

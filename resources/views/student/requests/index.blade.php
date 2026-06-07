@@ -46,8 +46,8 @@
                     @forelse($documents as $doc)
                         <li class="py-4 flex justify-between items-center">
                             <div>
-                                <p class="text-sm font-bold text-slate-900 uppercase">{{ $doc->document_type }}</p>
-                                <p class="text-xs text-slate-500">Généré le {{ \Carbon\Carbon::parse($doc->generated_at)->format('d/m/Y H:i') }}</p>
+                                <p class="text-sm font-bold text-slate-900 uppercase">{{ str_replace('_', ' ', $doc->type) }}</p>
+                                <p class="text-xs text-slate-500">Généré le {{ $doc->generated_at?->format('d/m/Y H:i') }}</p>
                             </div>
                             <!-- Download link -->
                             <a href="{{ asset('storage/' . $doc->file_path) }}" download class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl transition-colors">

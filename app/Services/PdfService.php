@@ -5,6 +5,7 @@ namespace App\Services;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use App\Models\AdministrativeRequest;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\Grade;
 use Illuminate\Support\Facades\Storage;
 
@@ -89,8 +90,52 @@ class PdfService
                 return $this->generateCertificate($request);
             case 'attestation':
                 return $this->generateAttestation($request);
+            case 'work_attestation':
+                return $this->generateWorkAttestation($request);
+            case 'mission_order':
+                return $this->generateMissionOrder($request);
             default:
                 throw new \Exception('Unsupported document type');
         }
+    }
+
+    public function generateWorkAttestation(AdministrativeRequest $request)
+    {
+        $teacher = $request->teacher;
+        if (!$teacher) {
+            throw new \Exception('Teacher not found for request');
+        }
+
+        $pdf = PDF::loadView('pdf.work-attestation', [
+            'teacher' => $teacher,
+            'request' => $request,
+        ]);
+
+        $filename = 'work_attestation_' . $teacher->id . '_' . time() . '.pdf';
+        $path = 'documents/' . $filename;
+
+        Storage::disk('public')->put($path, $pdf->output());
+
+        return $path;
+    }
+
+    public function generateMissionOrder(AdministrativeRequest $request)
+    {
+        $teacher = $request->teacher;
+        if (!$teacher) {
+            throw new \Exception('Teacher not found for request');
+        }
+
+        $pdf = PDF::loadView('pdf.mission-order', [
+            'teacher' => $teacher,
+            'request' => $request,
+        ]);
+
+        $filename = 'mission_order_' . $teacher->id . '_' . time() . '.pdf';
+        $path = 'documents/' . $filename;
+
+        Storage::disk('public')->put($path, $pdf->output());
+
+        return $path;
     }
 }
