@@ -5,6 +5,25 @@
 
 @section('content')
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    @if(session('success'))
+        <div class="col-span-full bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="col-span-full bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if ($errors->any())
+        <div class="col-span-full bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl">
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <!-- Log Form -->
     <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm h-fit">
         <h4 class="text-base font-bold text-slate-900 mb-6">Enregistrer une Séance</h4>
