@@ -3,8 +3,8 @@
 @section('content')
     <div class="w-full max-w-md mx-auto">
         <div class="mb-10">
-            <h1 class="text-3xl font-bold mb-2">Connexion</h1>
-            <p class="text-gray-400">Accédez à votre espace SMART UPF</p>
+            <h1 class="text-3xl font-bold mb-2">{{ __('Login') }}</h1>
+            <p class="text-gray-400">{{ __('Access your SMART UPF space') }}</p>
         </div>
 
         @if(session('status'))
@@ -17,7 +17,7 @@
             @csrf
 
             <div class="form-group">
-                <label for="email" class="form-label text-sm font-medium">Adresse e-mail</label>
+                <label for="email" class="form-label text-sm font-medium">{{ __('Email Address') }}</label>
                 <div class="relative mt-1">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,7 +25,7 @@
                         </svg>
                     </div>
                     <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                        class="form-input pl-10 bg-slate-950/50 border-purple-500/20 text-white rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" placeholder="exemple@universite.fr">
+                        class="form-input pl-10 bg-slate-950/50 border-purple-500/20 text-white rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400" placeholder="{{ __('example@university.fr') }}">
                 </div>
                 @error('email')
                     <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
@@ -33,7 +33,7 @@
             </div>
 
             <div class="form-group">
-                <label for="password" class="form-label text-sm font-medium">Mot de passe</label>
+                <label for="password" class="form-label text-sm font-medium">{{ __('Password') }}</label>
                 <div class="relative mt-1">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,27 +57,27 @@
             <div class="flex items-center justify-between mb-8">
                 <label class="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-600 bg-gray-800 text-indigo-600 focus:ring-indigo-500">
-                    <span class="text-sm text-gray-300">Se souvenir de moi</span>
+                    <span class="text-sm text-gray-300">{{ __('Remember me') }}</span>
                 </label>
                 
                 @if(Route::has('password.request'))
                     <a href="{{ route('password.request') }}" class="text-sm text-purple-400 hover:text-purple-300 transition">
-                        Mot de passe oublié ?
+                        {{ __('Forgot your password?') }}
                     </a>
                 @endif
             </div>
 
             <button type="submit" class="w-full btn btn-primary justify-center py-3">
-                Se connecter
+                {{ __('Sign in') }}
                 <span class="ml-2">→</span>
             </button>
         </form>
 
         <div class="mt-10 text-center">
             <p class="text-gray-400 text-sm">
-                Pas encore de compte ?
+                {{ __("Don't have an account?") }}
                 <a href="{{ route('register') }}" class="text-purple-400 hover:text-purple-300 font-semibold transition">
-                    S'inscrire
+                    {{ __('Sign up') }}
                 </a>
             </p>
         </div>

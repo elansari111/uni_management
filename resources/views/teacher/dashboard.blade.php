@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Teacher Dashboard - PFM')
-@section('header_title', 'Espace Enseignant')
+@section('header_title', __('Teacher Space'))
 
 @section('content')
 <div class="space-y-6">
@@ -13,7 +13,7 @@
                 <span class="text-2xl">📖</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Mes Modules</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('My Modules') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $modulesCount }}</h3>
             </div>
         </div>
@@ -23,7 +23,7 @@
                 <span class="text-2xl">📝</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Séances enregistrées</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Recorded Sessions') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $logsCount }}</h3>
             </div>
         </div>
@@ -33,7 +33,7 @@
                 <span class="text-2xl">🏫</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Réservations Salles</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Room Reservations') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $reservationsCount }}</h3>
             </div>
         </div>
@@ -45,8 +45,8 @@
         <!-- Recent Lesson Logs -->
         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
             <div class="flex justify-between items-center mb-6">
-                <h4 class="text-base font-semibold text-slate-900">Cahier de Textes Récent</h4>
-                <a href="{{ route('teacher.lesson-logs.index') }}" class="text-xs font-semibold text-indigo-600 hover:underline">Voir tout</a>
+                <h4 class="text-base font-semibold text-slate-900">{{ __('Recent Lesson Logs') }}</h4>
+                <a href="{{ route('teacher.lesson-logs.index') }}" class="text-xs font-semibold text-indigo-600 hover:underline">{{ __('View All') }}</a>
             </div>
             
             <div class="flow-root">
@@ -68,7 +68,7 @@
                             </div>
                         </li>
                     @empty
-                        <p class="text-sm text-slate-400 text-center py-6">Aucun log enregistré.</p>
+                        <p class="text-sm text-slate-400 text-center py-6">{{ __('No logs recorded.') }}</p>
                     @endforelse
                 </ul>
             </div>
@@ -77,8 +77,8 @@
         <!-- Recent Reservations -->
         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
             <div class="flex justify-between items-center mb-6">
-                <h4 class="text-base font-semibold text-slate-900">Demandes de Réservations</h4>
-                <a href="{{ route('teacher.reservations.index') }}" class="text-xs font-semibold text-indigo-600 hover:underline">Gérer</a>
+                <h4 class="text-base font-semibold text-slate-900">{{ __('Reservation Requests') }}</h4>
+                <a href="{{ route('teacher.reservations.index') }}" class="text-xs font-semibold text-indigo-600 hover:underline">{{ __('Manage') }}</a>
             </div>
             
             <div class="flow-root">
@@ -88,7 +88,7 @@
                             <div class="flex items-center space-x-4">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-semibold text-slate-900 truncate">
-                                        Salle {{ $res->classroom?->name }}
+                                        {{ __('Room') }} {{ $res->classroom?->name }}
                                     </p>
                                     <p class="text-xs text-slate-500 truncate">
                                         {{ \Carbon\Carbon::parse($res->reservation_date)->format('d/m/Y') }} • {{ $res->start_time }} - {{ $res->end_time }}
@@ -100,13 +100,13 @@
                                         {{ $res->status === 'rejected' ? 'bg-rose-100 text-rose-800' : '' }}
                                         {{ $res->status === 'pending' ? 'bg-amber-100 text-amber-800' : '' }}
                                     ">
-                                        {{ $res->status }}
+                                        {{ __($res->status) }}
                                     </span>
                                 </div>
                             </div>
                         </li>
                     @empty
-                        <p class="text-sm text-slate-400 text-center py-6">Aucune réservation demandée.</p>
+                        <p class="text-sm text-slate-400 text-center py-6">{{ __('No reservation requested.') }}</p>
                     @endforelse
                 </ul>
             </div>

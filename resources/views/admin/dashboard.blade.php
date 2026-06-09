@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Admin Dashboard - PFM')
-@section('header_title', 'Tableau de Bord Administrateur')
+@section('header_title', __('Admin Space'))
 
 @section('content')
 <div class="space-y-6">
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: @json($groupNames),
                 datasets: [{
-                    label: 'Nombre d\'étudiants',
+                    label: '{{ __('Number of students') }}',
                     data: @json($groupStudentCounts),
                     backgroundColor: [
                         '#3b82f6', // Blue
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: ['0-5', '6-10', '11-15', '16-20'],
                 datasets: [{
-                    label: 'Nombre d\'étudiants',
+                    label: '{{ __('Number of students') }}',
                     data: [
                         {{ $gradeRanges['0-5'] }},
                         {{ $gradeRanges['6-10'] }},

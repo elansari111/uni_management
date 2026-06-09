@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Student Dashboard - PFM')
-@section('header_title', 'Espace Étudiant')
+@section('header_title', __('Student Space'))
 
 @section('content')
 <div class="space-y-6">
@@ -13,9 +13,9 @@
                 <span class="text-2xl">📈</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Moyenne Générale</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('General Average') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">
-                    {{ $gpa > 0 ? number_format($gpa, 2) . ' / 20' : 'N/A' }}
+                    {{ $gpa > 0 ? number_format($gpa, 2) . ' / 20' : __('N/A') }}
                 </h3>
             </div>
         </div>
@@ -25,7 +25,7 @@
                 <span class="text-2xl">⚠️</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Total Absences</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Total Absences') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $absencesCount }}</h3>
             </div>
         </div>
@@ -35,7 +35,7 @@
                 <span class="text-2xl">🚨</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-slate-500">Absences non justifiées</p>
+                <p class="text-sm font-medium text-slate-500">{{ __('Unexcused Absences') }}</p>
                 <h3 class="text-2xl font-bold text-slate-900 mt-1">{{ $unexcusedCount }}</h3>
             </div>
         </div>
@@ -47,8 +47,8 @@
         <!-- Recent Grades -->
         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
             <div class="flex justify-between items-center mb-6">
-                <h4 class="text-base font-semibold text-slate-900">Dernières Notes Saisies</h4>
-                <a href="{{ route('student.grades.index') }}" class="text-xs font-semibold text-indigo-600 hover:underline">Détails</a>
+                <h4 class="text-base font-semibold text-slate-900">{{ __('Recent Grades') }}</h4>
+                <a href="{{ route('student.grades.index') }}" class="text-xs font-semibold text-indigo-600 hover:underline">{{ __('Details') }}</a>
             </div>
             
             <div class="flow-root">
@@ -61,7 +61,7 @@
                                         {{ $grade->module?->name }}
                                     </p>
                                     <p class="text-xs text-slate-500 truncate">
-                                        Note finale calculée
+                                        {{ __('Final Grade') }}
                                     </p>
                                 </div>
                                 <div class="inline-flex items-center text-sm font-bold text-indigo-600">
@@ -70,7 +70,7 @@
                             </div>
                         </li>
                     @empty
-                        <p class="text-sm text-slate-400 text-center py-6">Aucune note enregistrée pour le moment.</p>
+                        <p class="text-sm text-slate-400 text-center py-6">{{ __('No grades recorded yet.') }}</p>
                     @endforelse
                 </ul>
             </div>
@@ -79,7 +79,7 @@
         <!-- Recent Announcements -->
         <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
             <div class="flex justify-between items-center mb-6">
-                <h4 class="text-base font-semibold text-slate-900">Annonces & Actualités</h4>
+                <h4 class="text-base font-semibold text-slate-900">{{ __('Announcements & News') }}</h4>
             </div>
             
             <div class="flow-root">
@@ -95,13 +95,13 @@
                                         {{ $ann->content }}
                                     </p>
                                     <p class="text-[10px] text-slate-400 mt-2">
-                                        Par {{ $ann->creator?->name ?? 'Administrateur' }} • {{ $ann->created_at->format('d/m/Y H:i') }}
+                                        {{ __('By') }} {{ $ann->creator?->name ?? 'Administrateur' }} • {{ $ann->created_at->format('d/m/Y H:i') }}
                                     </p>
                                 </div>
                             </div>
                         </li>
                     @empty
-                        <p class="text-sm text-slate-400 text-center py-6">Aucune annonce.</p>
+                        <p class="text-sm text-slate-400 text-center py-6">{{ __('No announcements.') }}</p>
                     @endforelse
                 </ul>
             </div>
