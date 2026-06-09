@@ -17,15 +17,18 @@ class AbsenceFactory extends Factory
      */
     public function definition(): array
     {
+        $type = fake()->randomElement(['present', 'absent', 'late', 'excused']);
+        $status = $type === 'excused' ? 'justified' : fake()->randomElement(['pending', 'justified', 'unjustified']);
+
         return [
             'student_id' => \App\Models\Student::inRandomOrder()->first()?->id ?? \App\Models\Student::factory(),
             'module_id' => \App\Models\Module::inRandomOrder()->first()?->id ?? \App\Models\Module::factory(),
             'schedule_id' => \App\Models\Schedule::inRandomOrder()->first()?->id ?? \App\Models\Schedule::factory(),
             'date' => fake()->date(),
-            'type' => fake()->randomElement(['present', 'absent', 'late', 'excused']),
-            'status' => fake()->randomElement(['pending', 'justified', 'unjustified']),
-            'justification_id' => null,
-            'notes' => fake()->optional()->sentence(),
+            'type' => $type,
+            'status' => $status,
+            'justification_id' => $status === 'justified' ? null : null,
+            'notes' => fake()->optional()->randomElement(['Arrivé 10 min en retard', 'Rien à signaler']),
         ];
     }
 }

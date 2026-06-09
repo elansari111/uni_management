@@ -17,10 +17,9 @@ class ClassroomFactory extends Factory
      */
     public function definition(): array
     {
-        $uniqueId = fake()->unique()->randomNumber(4);
         return [
-            'name' => fake()->word() . ' Room ' . $uniqueId,
-            'code' => 'ROOM' . $uniqueId,
+            'name' => fake()->words(3, true),
+            'code' => fake()->unique()->bothify('ROOM-##'),
             'capacity' => fake()->numberBetween(20, 100),
             'building' => fake()->randomElement(['A', 'B', 'C', 'D']),
             'floor' => fake()->numberBetween(0, 5),

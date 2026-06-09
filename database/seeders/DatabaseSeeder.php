@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ClassroomSeeder::class,
             ModuleSeeder::class,
             ScheduleSeeder::class,
+            LessonLogSeeder::class,
             GradeSeeder::class,
             AbsenceSeeder::class,
             AbsenceJustificationSeeder::class,

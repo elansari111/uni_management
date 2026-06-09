@@ -23,19 +23,22 @@ class CommentFactory extends Factory
                 'role_id' => \App\Models\Role::inRandomOrder()->first()?->id,
             ]);
         }
-        
+        $comments = [
+            'Très intéressant !',
+            'Merci pour le cours.',
+            'Pourrais-je avoir la réponse ?',
+            'Super module !',
+            'Peut mieux faire.',
+            'C\'est clair.',
+        ];
+
         return [
             'user_id' => $user->id,
-            'content' => fake()->paragraph(),
-            'commentable_type' => fake()->randomElement([
-                \App\Models\Module::class, 
-                \App\Models\Announcement::class, 
-                \App\Models\CourseMaterial::class, 
-                \App\Models\AdministrativeRequest::class
-            ]),
+            'content' => fake()->randomElement($comments),
+            'commentable_type' => fake()->randomElement([\App\Models\Module::class, \App\Models\Announcement::class, \App\Models\CourseMaterial::class, \App\Models\AdministrativeRequest::class]),
             'commentable_id' => fake()->numberBetween(1, 10),
             'parent_id' => null,
-            'status' => fake()->randomElement(['pending', 'approved', 'rejected', 'hidden']),
+            'status' => 'approved',
         ];
     }
 }

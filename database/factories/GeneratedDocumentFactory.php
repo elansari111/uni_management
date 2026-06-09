@@ -17,19 +17,21 @@ class GeneratedDocumentFactory extends Factory
      */
     public function definition(): array
     {
-        $safeDate = fake()->dateTimeBetween('-5 years', 'now')->setTime(fake()->numberBetween(10, 16), 0, 0);
-        
+        $safeDate = fake()->dateTimeBetween('-2 months', 'now');
+        $types = ['transcript', 'certificate', 'attestation', 'grade_report', 'other', 'work_attestation', 'mission_order'];
+        $titles = ['Certificat scolarité 2024', 'Attestation inscription', 'Relevé notes S1', 'Relevé notes S2'];
+
         return [
             'request_id' => fake()->boolean(50) ? \App\Models\AdministrativeRequest::inRandomOrder()->first()?->id ?? \App\Models\AdministrativeRequest::factory() : null,
             'student_id' => \App\Models\Student::inRandomOrder()->first()?->id ?? \App\Models\Student::factory(),
-            'type' => fake()->randomElement(['transcript', 'certificate', 'attestation', 'grade_report', 'other']),
-            'title' => fake()->sentence(),
+            'type' => fake()->randomElement($types),
+            'title' => fake()->randomElement($titles),
             'file_path' => fake()->filePath(),
             'file_type' => fake()->randomElement(['pdf', 'docx']),
             'generated_by' => \App\Models\User::inRandomOrder()->first()?->id ?? \App\Models\User::factory(),
             'generated_at' => $safeDate,
             'is_official' => fake()->boolean(),
-            'reference_number' => fake()->optional()->bothify('REF-####-####'),
+            'reference_number' => fake()->optional()->bothify('UPF-####-####'),
         ];
     }
 }

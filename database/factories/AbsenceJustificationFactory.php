@@ -19,17 +19,18 @@ class AbsenceJustificationFactory extends Factory
     {
         $status = fake()->randomElement(['pending', 'approved', 'rejected']);
         $isReviewed = $status !== 'pending';
-        $safeDate = fake()->dateTimeBetween('-5 years', 'now')->setTime(fake()->numberBetween(10, 16), 0, 0);
-        $reviewedDate = $isReviewed ? fake()->dateTimeBetween($safeDate, 'now')->setTime(fake()->numberBetween(10, 16), 0, 0) : null;
-        
+        $safeDate = fake()->dateTimeBetween('-2 months', 'now');
+        $reviewedDate = $isReviewed ? fake()->dateTimeBetween($safeDate, 'now') : null;
+        $reasons = ['Maladie', 'Rendez-vous médical', 'Urgence familiale', 'Panne de transport', 'Autre'];
+
         return [
             'student_id' => \App\Models\Student::inRandomOrder()->first()?->id ?? \App\Models\Student::factory(),
-            'reason' => fake()->paragraph(),
+            'reason' => fake()->randomElement($reasons),
             'document_path' => fake()->optional()->filePath(),
             'status' => $status,
             'reviewed_by' => $isReviewed ? \App\Models\User::inRandomOrder()->first()?->id ?? \App\Models\User::factory() : null,
             'reviewed_at' => $reviewedDate,
-            'review_notes' => $isReviewed ? fake()->optional()->sentence() : null,
+            'review_notes' => $isReviewed ? fake()->optional()->randomElement(['Accepté', 'Refusé - Justificatif invalide', 'Accepté - Document valide']) : null,
         ];
     }
 }

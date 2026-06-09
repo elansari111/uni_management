@@ -17,32 +17,28 @@ class RoomReservationFactory extends Factory
      */
     public function definition(): array
     {
-        $reservationDate = fake()->dateTimeBetween('+1 week', '+2 weeks');
-        $startTime = fake()->time();
-        $endTime = fake()->time('H:i', '+2 hours');
-        
-        // Parse time strings into hours and minutes
-        list($startHour, $startMinute) = explode(':', $startTime);
-        list($endHour, $endMinute) = explode(':', $endTime);
-        
-        // Clone the date object to avoid modifying the original
-        $startDateTime = (clone $reservationDate)->setTime((int)$startHour, (int)$startMinute);
-        $endDateTime = (clone $reservationDate)->setTime((int)$endHour, (int)$endMinute);
-        
+        $reservationDate = fake()->dateTimeBetween('+1 week', '+2 months');
+        $timeSlots = [
+            ['start' => '08:00', 'end' => '10:00'],
+            ['start' => '10:00', 'end' => '12:00'],
+            ['start' => '14:00', 'end' => '16:00'],
+            ['start' => '16:00', 'end' => '18:00'],
+        ];
+        $slot = fake()->randomElement($timeSlots);
+        $purposes = ['Cours', 'TD', 'TP', 'Conférence', 'Réunion'];
+
         return [
             'classroom_id' => \App\Models\Classroom::inRandomOrder()->first()?->id ?? \App\Models\Classroom::factory(),
             'user_id' => \App\Models\User::inRandomOrder()->first()?->id ?? \App\Models\User::factory(),
-            'purpose' => fake()->sentence(),
-            'description' => fake()->optional()->paragraph(),
+            'purpose' => fake()->randomElement($purposes),
+            'description' => fake()->optional()->sentence(),
             'reservation_date' => $reservationDate->format('Y-m-d'),
-            'start_time' => $startTime,
-            'end_time' => $endTime,
-            'start_datetime' => $startDateTime,
-            'end_datetime' => $endDateTime,
+            'start_time' => $slot['start'],
+            'end_time' => $slot['end'],
             'status' => fake()->randomElement(['pending', 'approved', 'rejected', 'cancelled']),
-            'approved_by' => fake()->boolean(50) ? \App\Models\User::inRandomOrder()->first()?->id ?? \App\Models\User::factory() : null,
+            'approved_by' => fake()->boolean(60) ? \App\Models\User::inRandomOrder()->first()?->id ?? \App\Models\User::factory() : null,
             'approved_at' => fake()->optional()->dateTime(),
-            'rejection_reason' => fake()->optional()->sentence(),
+            'rejection_reason' => fake()->optional()->randomElement(['Salle déjà réservée', 'Heure non disponible']),
         ];
     }
 }

@@ -14,18 +14,39 @@ class GroupSeeder extends Seeder
     {
         $groups = [
             [
-                'name' => 'Group A - L3 Computer Science',
-                'code' => 'L3-CS-A',
-                'description' => 'Third year Computer Science students - Group A',
+                'name' => 'Groupe A - L3 Informatique',
+                'code' => 'L3-INFO-A',
+                'description' => 'Groupe A de la 3ème année Licence Informatique',
                 'capacity' => 30,
                 'level_id' => 3,
             ],
             [
-                'name' => 'Group B - L3 Computer Science',
-                'code' => 'L3-CS-B',
-                'description' => 'Third year Computer Science students - Group B',
+                'name' => 'Groupe B - L3 Informatique',
+                'code' => 'L3-INFO-B',
+                'description' => 'Groupe B de la 3ème année Licence Informatique',
                 'capacity' => 30,
                 'level_id' => 3,
+            ],
+            [
+                'name' => 'Groupe A - L2 Informatique',
+                'code' => 'L2-INFO-A',
+                'description' => 'Groupe A de la 2ème année Licence Informatique',
+                'capacity' => 35,
+                'level_id' => 2,
+            ],
+            [
+                'name' => 'Groupe B - L2 Informatique',
+                'code' => 'L2-INFO-B',
+                'description' => 'Groupe B de la 2ème année Licence Informatique',
+                'capacity' => 35,
+                'level_id' => 2,
+            ],
+            [
+                'name' => 'Groupe A - M1 Informatique',
+                'code' => 'M1-INFO-A',
+                'description' => 'Groupe A de la 1ère année Master Informatique',
+                'capacity' => 25,
+                'level_id' => 4,
             ],
         ];
 

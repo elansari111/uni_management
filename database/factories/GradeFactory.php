@@ -17,13 +17,10 @@ class GradeFactory extends Factory
      */
     public function definition(): array
     {
-        $cc1 = fake()->optional()->randomFloat(1, 0, 20);
-        $cc2 = fake()->optional()->randomFloat(1, 0, 20);
-        $exam = fake()->optional()->randomFloat(1, 0, 20);
-        $finalGrade = null;
-        if ($cc1 !== null && $cc2 !== null && $exam !== null) {
-            $finalGrade = (($cc1 + $cc2) / 2) * 0.4 + $exam * 0.6;
-        }
+        $cc1 = fake()->randomFloat(1, 8, 20);
+        $cc2 = fake()->randomFloat(1, 7, 20);
+        $exam = fake()->randomFloat(1, 6, 20);
+        $finalGrade = (($cc1 + $cc2) / 2) * 0.4 + $exam * 0.6;
         
         return [
             'student_id' => \App\Models\Student::inRandomOrder()->first()?->id ?? \App\Models\Student::factory(),
@@ -32,7 +29,7 @@ class GradeFactory extends Factory
             'cc2' => $cc2,
             'exam' => $exam,
             'final_grade' => $finalGrade,
-            'remarks' => fake()->optional()->sentence(),
+            'remarks' => fake()->optional()->randomElement(['Bon travail', 'Très bien', 'Peut mieux faire']),
         ];
     }
 }
