@@ -1,0 +1,95 @@
+MODELE LOGIQUE DE DONNEES (MLD)
+=================================
+
+1. roles (id, name, slug, description, created_at, updated_at)
+   PK: id
+   
+2. users (id, name, email, email_verified_at, password, remember_token, role_id, phone, birth_date, address, created_at, updated_at)
+   PK: id
+   FK: role_id → roles.id
+   
+3. students (id, user_id, group_id, student_number, first_name, last_name, enrollment_date, created_at, updated_at)
+   PK: id
+   FK: user_id → users.id
+   FK: group_id → groups.id
+   
+4. teachers (id, user_id, employee_number, first_name, last_name, specialization, hire_date, created_at, updated_at)
+   PK: id
+   FK: user_id → users.id
+   
+5. levels (id, name, code, description, order, created_at, updated_at)
+   PK: id
+   
+6. groups (id, name, code, description, capacity, level_id, created_at, updated_at)
+   PK: id
+   FK: level_id → levels.id
+   
+7. modules (id, name, code, description, credits, teacher_id, group_id, level, semester, status, created_at, updated_at, deleted_at)
+   PK: id
+   FK: teacher_id → users.id
+   FK: group_id → groups.id
+   
+8. classrooms (id, name, code, capacity, building, floor, equipment, status, created_at, updated_at, deleted_at)
+   PK: id
+   
+9. schedules (id, module_id, classroom_id, day_of_week, start_time, end_time, type, created_at, updated_at)
+   PK: id
+   FK: module_id → modules.id
+   FK: classroom_id → classrooms.id
+   
+10. grades (id, student_id, module_id, grade_type, score, max_score, date, comments, created_at, updated_at)
+    PK: id
+    FK: student_id → students.id
+    FK: module_id → modules.id
+    
+11. absences (id, student_id, module_id, schedule_id, date, status, justification_id, notes, created_at, updated_at)
+    PK: id
+    FK: student_id → students.id
+    FK: module_id → modules.id
+    FK: schedule_id → schedules.id
+    FK: justification_id → absence_justifications.id
+    
+12. absence_justifications (id, student_id, absence_id, reason, document_path, status, reviewed_by, reviewed_at, created_at, updated_at)
+    PK: id
+    FK: student_id → students.id
+    FK: absence_id → absences.id
+    FK: reviewed_by → users.id
+    
+13. lesson_logs (id, teacher_id, module_id, classroom_id, date, start_time, end_time, objective, nature, summary, notes, created_at, updated_at)
+    PK: id
+    FK: teacher_id → teachers.id
+    FK: module_id → modules.id
+    
+14. announcements (id, created_by, module_id, title, content, is_pinned, published_at, created_at, updated_at, deleted_at)
+    PK: id
+    FK: created_by → users.id
+    FK: module_id → modules.id
+    
+15. course_materials (id, module_id, uploaded_by, title, description, file_path, file_type, created_at, updated_at)
+    PK: id
+    FK: module_id → modules.id
+    FK: uploaded_by → users.id
+    
+16. comments (id, user_id, commentable_id, commentable_type, content, created_at, updated_at)
+    PK: id
+    FK: user_id → users.id
+    (Polymorphic relation: commentable_id + commentable_type)
+    
+17. room_reservations (id, user_id, classroom_id, date, start_time, end_time, purpose, status, approved_by, approved_at, created_at, updated_at)
+    PK: id
+    FK: user_id → users.id
+    FK: classroom_id → classrooms.id
+    FK: approved_by → users.id
+    
+18. administrative_requests (id, student_id, teacher_id, type, title, description, additional_data, status, submitted_at, processed_by, processed_at, admin_notes, created_at, updated_at, deleted_at)
+    PK: id
+    FK: student_id → students.id
+    FK: teacher_id → teachers.id
+    FK: processed_by → users.id
+    
+19. generated_documents (id, request_id, student_id, teacher_id, type, title, file_path, generated_by, created_at, updated_at)
+    PK: id
+    FK: request_id → administrative_requests.id
+    FK: student_id → students.id
+    FK: teacher_id → teachers.id
+    FK: generated_by → users.id

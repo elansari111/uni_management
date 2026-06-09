@@ -1,0 +1,68 @@
+useCaseDiagram
+    actor "Administrateur" as Admin
+    actor "Enseignant" as Teacher
+    actor "Étudiant" as Student
+
+    package "PFM - Plateforme de Formation Management" {
+        usecase "Gérer les utilisateurs (CRUD)" as UC1
+        usecase "Gérer les modules" as UC2
+        usecase "Gérer les niveaux" as UC3
+        usecase "Gérer les groupes" as UC4
+        usecase "Gérer les salles de classe" as UC5
+        usecase "Gérer l'emploi du temps" as UC6
+        usecase "Voir le tableau de bord" as UC7
+        usecase "Valider les justifications d'absences" as UC8
+        usecase "Traiter les demandes administratives" as UC9
+        usecase "Gérer les réservations de salles" as UC10
+        usecase "Voir les journaux de cours" as UC11
+        
+        usecase "Consulter son emploi du temps" as UC12
+        usecase "Gérer ses modules" as UC13
+        usecase "Saisir les notes" as UC14
+        usecase "Marquer les présences/absences" as UC15
+        usecase "Créer un journal de cours" as UC16
+        usecase "Publier une annonce" as UC17
+        usecase "Ajouter des supports de cours" as UC18
+        usecase "Faire une demande administrative" as UC19
+        usecase "Réserver une salle" as UC20
+        
+        usecase "Consulter ses notes" as UC21
+        usecase "Voir ses absences" as UC22
+        usecase "Soumettre une justification d'absence" as UC23
+        usecase "Consulter les annonces" as UC24
+        usecase "Télécharger des supports de cours" as UC25
+        usecase "Commenter les supports" as UC26
+    }
+
+    Admin --> UC1
+    Admin --> UC2
+    Admin --> UC3
+    Admin --> UC4
+    Admin --> UC5
+    Admin --> UC6
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC9
+    Admin --> UC10
+    Admin --> UC11
+    
+    Teacher --> UC7
+    Teacher --> UC12
+    Teacher --> UC13
+    Teacher --> UC14
+    Teacher --> UC15
+    Teacher --> UC16
+    Teacher --> UC17
+    Teacher --> UC18
+    Teacher --> UC19
+    Teacher --> UC20
+    
+    Student --> UC7
+    Student --> UC12
+    Student --> UC21
+    Student --> UC22
+    Student --> UC23
+    Student --> UC24
+    Student --> UC25
+    Student --> UC26
+    Student --> UC19

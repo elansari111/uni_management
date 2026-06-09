@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant Student
+    participant WebApp
+    participant StudentController
+    participant Grade
+    participant Module
+    
+    Student->>WebApp: Clique sur "Mes notes"
+    WebApp->>StudentController: GET /student/grades
+    activate StudentController
+    
+    StudentController->>StudentController: Récupère étudiant connecté
+    StudentController->>Grade: where('student_id', $student->id)
+    Grade-->>StudentController: Collection des notes
+    StudentController->>Module: Eager load modules
+    Module-->>StudentController: Modules associés
+    StudentController-->>WebApp: Retourne la vue avec les données
+    
+    deactivate StudentController
+    WebApp-->>Student: Affiche la liste des notes par module
