@@ -63,7 +63,20 @@ class AdminController extends Controller
         $groupNames = $groups->pluck('name');
         $groupStudentCounts = $groups->pluck('students_count');
 
-        return view('admin.dashboard', compact('stats', 'gradeRanges', 'groupNames', 'groupStudentCounts'));
+        // Generate mock area chart data
+        $days7 = [];
+        $sessions7 = [];
+        $absences7 = [];
+        $requests7 = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $days7[] = $date->translatedFormat('D');
+            $sessions7[] = rand(3, 10);
+            $absences7[] = rand(1, 8);
+            $requests7[] = rand(0, 5);
+        }
+
+        return view('admin.dashboard', compact('stats', 'gradeRanges', 'groupNames', 'groupStudentCounts', 'days7', 'sessions7', 'absences7', 'requests7'));
     }
 
     /**

@@ -80,5 +80,10 @@
     "Number of students": "عدد الطلاب",
     "Approved": "موافق عليه",
     "Rejected": "مرفوض",
-    "Pending": "قيد الانتظار"
+    "Pending": "قيد الانتظار",
+    "Activity Overview": "نظرة عامة على النشاط",
+    "7 days": "7 أيام",
+    "30 days": "30 يوم",
+    "90 days": "90 يوم",
+    "Sessions": "الحصص"
 }

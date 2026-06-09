@@ -80,5 +80,10 @@
     "Number of students": "Number of students",
     "Approved": "Approved",
     "Rejected": "Rejected",
-    "Pending": "Pending"
+    "Pending": "Pending",
+    "Activity Overview": "Activity Overview",
+    "7 days": "7 days",
+    "30 days": "30 days",
+    "90 days": "90 days",
+    "Sessions": "Sessions"
 }

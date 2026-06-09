@@ -80,5 +80,10 @@
     "Number of students": "Nombre d'étudiants",
     "Approved": "Approuvé",
     "Rejected": "Refusé",
-    "Pending": "En attente"
+    "Pending": "En attente",
+    "Activity Overview": "Aperçu de l'activité",
+    "7 days": "7 jours",
+    "30 days": "30 jours",
+    "90 days": "90 jours",
+    "Sessions": "Séances"
 }

@@ -8,6 +8,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if ($user->hasRole('admin')) {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->hasRole('teacher')) {
+            return redirect()->route('teacher.dashboard');
+        } elseif ($user->hasRole('student')) {
+            return redirect()->route('student.dashboard');
+        }
+    }
     return view('welcome');
 });
 
